@@ -8,6 +8,7 @@ import json_handler
 import output_battle_results as OBR
 import bot_config
 import logging.config
+from retry import retry
 
 # <editor-fold desc="setting">
 logging.config.fileConfig("logging.conf")
@@ -210,10 +211,10 @@ async def on_message(message):
 
 CLIENT.loop.create_task(execute_regurary())
 
-try:
+@retry(tries=10, delay=30, logger=logger)
+def make_trouble():
     CLIENT.run(config.bot_token)
-except Exception as e:
-    logger.error(f'CLIENT.run Error:{e}')
-    exit(e)
-finally:
-    logger.info(f'CLIENT.run end')
+
+make_trouble()
+
+logger.info(f'client.run end')
